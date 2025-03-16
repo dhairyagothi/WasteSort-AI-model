@@ -1,0 +1,68 @@
+# 🚀 Python-specific ignores
+__pycache__/
+*.py[cod]
+*.so
+*.DS_Store
+
+# 🔥 Virtual Environment
+venv/
+env/
+*.venv
+*.env
+
+# ⚙️ System Files
+*.log
+*.lock
+*.swp
+*.swo
+Thumbs.db
+desktop.ini
+
+model/
+*.zip
+*.h5
+*.pb
+*.tflite
+*.onnx
+
+# 📦 Ignore dataset and model files
+dataset/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.h5  # Ignore trained models
+*.pb  # TensorFlow model files
+*.tflite
+*.onnx
+*.jpg
+*.png
+*.jpeg
+*.npy
+*.npz
+
+binary_dataset/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.h5  # Ignore trained models
+*.pb  # TensorFlow model files
+*.tflite
+*.onnx
+*.npy
+*.jpg
+*.png
+*.jpeg
+*.npz
+
+# 📝 Ignore Streamlit cache
+.streamlit/
+.history/
+
+# 🚀 Ignore Jupyter Notebook checkpoints (if using notebooks)
+.ipynb_checkpoints/
+
+# 🗄 Ignore any custom cache files
+cache/
+*.cache
