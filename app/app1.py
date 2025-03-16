@@ -26,7 +26,7 @@ model = load_model()
 class_labels = ["Dry Waste", "Wet Waste", "Metal", "Plastic", "Glass", "Organic Waste", "Paper", "E-Waste", "Battery", "Clothes"]
 
 # Streamlit UI
-st.title("♻️ Waste Classification AI")
+st.title("♻️ WasteSort AI")
 st.write("Upload an image and click the **Predict** button to classify.")
 
 uploaded_file = st.file_uploader("Upload an image...", type=["jpg", "png", "jpeg"])
