@@ -9,11 +9,18 @@ import pandas as pd  # For graph plotting
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+# Fix DepthwiseConv2D deserialization issue
+def fix_depthwise_conv2d_config(config):
+    if "groups" in config:
+        config.pop("groups")  # Remove 'groups' to prevent error
+    return config
+
 # Load trained model
 @st.cache_resource
 def load_model():
     try:
-        model = tf.keras.models.load_model("final_waste_classification_model.h5")
+        with tf.keras.utils.custom_object_scope({"DepthwiseConv2D": fix_depthwise_conv2d_config}):
+            model = tf.keras.models.load_model("final_waste_classification_model.h5")
         logging.info("✅ Model loaded successfully!")
         return model
     except Exception as e:
