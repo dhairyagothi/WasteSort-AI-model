@@ -9,18 +9,11 @@ import pandas as pd  # For graph plotting
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Fix DepthwiseConv2D deserialization issue
-def fix_depthwise_conv2d_config(config):
-    if "groups" in config:
-        config.pop("groups")  # Remove 'groups' to prevent error
-    return config
-
 # Load trained model
 @st.cache_resource
 def load_model():
     try:
-        with tf.keras.utils.custom_object_scope({"DepthwiseConv2D": fix_depthwise_conv2d_config}):
-            model = tf.keras.models.load_model("final_waste_classification_model.h5")
+        model = tf.keras.models.load_model("final_waste_classification_model.h5")
         logging.info("✅ Model loaded successfully!")
         return model
     except Exception as e:
@@ -64,25 +57,28 @@ if uploaded_file is not None:
             img = np.expand_dims(img, axis=0)
 
             # Predict
-            prediction = model.predict(img)
-            confidence = np.max(prediction) * 100
-            detected_class = list(waste_info.keys())[np.argmax(prediction)]
-
-            # Apply accuracy-based correction
-            if confidence < 70:
-                corrected_class = "Wet Waste" if detected_class == "Dry Waste" else "Dry Waste"
-                corrected_confidence = 100 - confidence  # Assign remaining confidence to the other class
-                final_class = corrected_class
-                final_confidence = corrected_confidence
+            prediction = model.predict(img)[0]  # Extract prediction array
+            
+            # Since the model is binary, use a threshold to determine class
+            threshold = 0.5
+            if prediction[0] > threshold:
+                dry_confidence = prediction[0] * 100
+                wet_confidence = 100 - dry_confidence
             else:
-                final_class = detected_class
-                final_confidence = confidence
+                wet_confidence = (1 - prediction[0]) * 100
+                dry_confidence = 100 - wet_confidence
+
+            # Determine final classification
+            detected_class = "Dry Waste" if dry_confidence > wet_confidence else "Wet Waste"
+            confidence = max(dry_confidence, wet_confidence)
+            other_class = "Wet Waste" if detected_class == "Dry Waste" else "Dry Waste"
+            other_confidence = 100 - confidence
 
             # Get waste info
-            waste_details = waste_info.get(final_class, {"description": "Unknown Waste", "bin": "Unknown", "bin_image": None})
+            waste_details = waste_info.get(detected_class, {"description": "Unknown Waste", "bin": "Unknown", "bin_image": None})
 
             # Display result
-            st.write(f"### 🏷 Classification: **{final_class}** ({final_confidence:.2f}%)")
+            st.write(f"### Classification: **{detected_class}** ({confidence:.2f}%)")
             st.write(f"📌 **What to do?** {waste_details['description']}")
             st.write(f"🗑 **Dispose in:** {waste_details['bin']}")
 
@@ -90,15 +86,15 @@ if uploaded_file is not None:
             if waste_details["bin_image"]:
                 st.image(waste_details["bin_image"], caption=waste_details["bin"], use_container_width=True)
 
-            # Fix: Properly format the graph data
+            # Properly format the graph data
             confidence_data = pd.DataFrame(
-                {"Confidence": prediction.flatten()},
-                index=waste_info.keys()
+                {"Confidence (%)": [confidence, other_confidence]},
+                index=[detected_class, other_class]
             )
             st.bar_chart(confidence_data)
 
             # Log prediction
-            logging.info(f"✅ Prediction: {final_class} ({final_confidence:.2f}%)")
+            logging.info(f"✅ Prediction: {detected_class} ({confidence:.2f}%)")
 
         except Exception as e:
             logging.error(f"❌ Error processing image: {e}")

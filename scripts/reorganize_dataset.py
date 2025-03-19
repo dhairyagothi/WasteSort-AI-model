@@ -6,15 +6,15 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Define dataset paths
-DATASET_DIR = "dataset/Garbage classification/Garbage classification"
+DATASET_DIR = "dataset/RealWaste"
 OUTPUT_DIR = "binary_dataset"
 
 # Define dry and wet waste categories
 DRY_WASTE_CATEGORIES = [
     "brown-glass", "cardboard", "clothes", "green-glass", "metal", 
-    "paper", "plastic", "shoes", "white-glass","glass", "trash","metal"
+    "paper", "plastic", "shoes", "white-glass","glass", "trash","metal","Glass" ,"Metal" ,"Miscellaneous Trash" ,"Plastic" ,"Paper" ,"Cardboard" ,"Clothes" ,"Shoes" ,"Trash" ,"Brown Glass" ,"Green Glass" ,"White Glass",
 ]
-WET_WASTE_CATEGORIES = ["biological", "battery"]
+WET_WASTE_CATEGORIES = ["biological", "battery" ,"Food Organics" , "Vegetation"]
 
 # Create output directories
 dry_path = os.path.join(OUTPUT_DIR, "Dry Waste")
