@@ -5,6 +5,19 @@ import cv2
 from PIL import Image
 import logging
 
+import tensorflow as tf
+
+# Load your existing model
+model = tf.keras.models.load_model("model/waste_classifier.h5")
+
+# Convert the model to TensorFlow Lite format
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+# Save the converted model to a file
+with open("model/waste_classifier.tflite", "wb") as f:
+    f.write(tflite_model)
+
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
